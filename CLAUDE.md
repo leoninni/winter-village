@@ -10,7 +10,8 @@ then bonus phases B1–B7).
 - `npm run dev` – local dev server · `npm run dev:phone` – same, reachable on the LAN (iPhone)
 - `npm test` – Vitest (logic + content integrity)
 - `npm run build` – `tsc --noEmit` + Vite build
-- `npm run gen:placeholders` – regenerate placeholder PNGs (from Phase 1)
+- `npm run gen:placeholders` – regenerate placeholder PNGs (sizes from `content/sprites.ts` + `src/world/props.ts`)
+- `npm run gen:map` – generate the first `village.tmj` (refuses to overwrite; `-- --force` overwrites Tiled edits!)
 - Tiled on macOS: `brew install --cask tiled`
 
 ## Golden rules
@@ -38,10 +39,19 @@ then bonus phases B1–B7).
 ## Gotchas
 - Vite `base` is `/winter-village/` when `GITHUB_ACTIONS` is set → load assets with relative
   paths (`assets/...`), never a leading `/`.
-- Phaser: `pixelArt: true`, `roundPixels: true`, **integer camera zoom only**
-  (`src/systems/zoom.ts`). Phaser 4 is imported as `import Phaser from 'phaser'`.
+- Phaser 4 docs ship in `node_modules/phaser/skills/*/SKILL.md` and `node_modules/phaser/docs/` –
+  check them (esp. `v3-to-v4-migration`) instead of relying on Phaser 3 habits.
+- Crisp pixels: `pixelArt: true`, `roundPixels: true`, and **never zoom the camera** – Phaser 4 only
+  rounds sprites when the camera is unzoomed. Instead `Scale.NONE` + whole-number `scale.zoom`
+  (`src/systems/viewport.ts`) renders small and enlarges the canvas. (RESIZE mode ignores zoom.)
+- Phaser 4 is imported as `import Phaser from 'phaser'`.
+- UI shortcuts (Esc) are DOM listeners in `src/ui/overlay.ts`: Phaser 4's keyboard queue can
+  deliver one key press twice in a frame (seen right after arrow keys).
 - Pure logic (no Phaser import) lives in `src/systems/*` so Vitest can run it in Node.
-- Tiled tilesets must be embedded in `.tmj`; objects reference content via a `contentId` property.
+- `public/assets/maps/village.tmj` is the source of truth (edit in Tiled). Tilesets must be embedded;
+  props are point objects whose `type` is a key of `src/world/props.ts`; areas/farms reference
+  content via a `contentId` property. `tests/content-integrity.test.ts` checks reachability.
+- Collision/pathfinding use a 16 px NavGrid (`src/systems/NavGrid.ts`): solid tiles + prop footprints.
 - Santa letter: real DOM `<textarea>`; disable Phaser keyboard capture while it's focused.
 - Formspree endpoint only in `content/settings.ts`, used only by `src/services/formspree.ts`.
   POST JSON with `Accept: application/json`, `_gotcha` honeypot, `_subject`. reCAPTCHA must be
