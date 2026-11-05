@@ -3,8 +3,7 @@
  * German with a Swedish sprinkle.
  */
 export const strings = {
-  // TODO Leonie: Spieltitel – gern etwas Persönliches (erscheint auf dem Startbildschirm)
-  gameTitle: 'Winter Village',
+  gameTitle: 'Snöbyn',
   gameSubtitle: 'Ein kleines Dorf in Småland, kurz vor Weihnachten',
 
   /** Phase-0 teaser screen */

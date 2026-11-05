@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import { gameConfig } from './config';
 import { mountOverlay } from './ui/overlay';
 import './ui/styles.css';
+import { strings } from '../content/strings';
+
+document.title = strings.gameTitle;
 
 // iOS Safari: stop pinch-zoom gestures from zooming the page instead of playing.
 document.addEventListener('gesturestart', (e) => e.preventDefault());

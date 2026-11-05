@@ -27,5 +27,5 @@ Every place where only you can add something personal is marked in the code with
 delete the `// TODO Leonie` comment **and** its line below (the test reminds you if you forget).
 
 <!-- TODO-CHECKLIST:START -->
-- [ ] `content/strings.ts` — Spieltitel – gern etwas Persönliches (erscheint auf dem Startbildschirm)
+_(nothing open right now)_
 <!-- TODO-CHECKLIST:END -->
