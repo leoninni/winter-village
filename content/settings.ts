@@ -4,8 +4,8 @@
  */
 export const settings = {
   movement: {
-    walkSpeed: 72,
-    runSpeed: 124,
+    walkSpeed: 82,
+    runSpeed: 136,
     /** Speed multiplier in deep snow (Teddy ignores this – he bounds through). */
     deepSnowFactor: 0.6,
     /** Tapping further away than this (in tiles) makes your character jog. */

@@ -83,16 +83,17 @@ export class Player {
       dy = keys.y / len;
       this.running = runKey;
     } else if (this.waypoints.length) {
-      const wp = this.waypoints[0]!;
-      const ddx = wp.x - this.x;
-      const ddy = wp.y - this.y;
-      const dist = Math.hypot(ddx, ddy);
-      if (dist < 1) {
+      // skip waypoints we're already standing on, so there's no idle frame between segments
+      while (this.waypoints.length) {
+        const wp = this.waypoints[0]!;
+        const dist = Math.hypot(wp.x - this.x, wp.y - this.y);
+        if (dist >= 1) {
+          dx = (wp.x - this.x) / dist;
+          dy = (wp.y - this.y) / dist;
+          break;
+        }
         this.waypoints.shift();
         if (!this.waypoints.length) this.onArrive?.();
-      } else {
-        dx = ddx / dist;
-        dy = ddy / dist;
       }
       this.running = this.pathRun || runKey;
     }
