@@ -1,7 +1,7 @@
 # Winter Village: plan (revision 2)
 
 ## Context
-This is a cozy 2D top-down browser game, a Christmas gift for your mom and sister. It's set in a snowy 1920s Småland village with three red farmhouses (North, Middle and South farm). The player picks a character (Sonne, Isi or Ninni) and a companion (Teddy, Pauli or Kratzi), then explores freely and does optional activities. Each one opens an advent-calendar door and gets a funny reaction from the world. The player triggers Christmas Eve whenever they like, and the ending reflects what they did.
+This is a cozy 2D top-down browser game, a cozy Christmas game. It's set in a snowy 1920s Småland village with three red farmhouses (North, Middle and South farm). The player picks a character (Sonne, Isi or Ninni) and a companion (Teddy, Pauli or Kratzi), then explores freely and does optional activities. Each one opens an advent-calendar door and gets a funny reaction from the world. The player triggers Christmas Eve whenever they like, and the ending reflects what they did.
 
 It runs on desktop (keyboard) and iPhone Safari (tap). It deploys to GitHub Pages. All content lives in data files, in German with Swedish touches.
 
@@ -148,7 +148,7 @@ Each phase ends playable and deployed, with `npm test` and the build passing bef
 - The letter via Formspree, including the North Pole reply.
 - Decorating the 4 trees: dragging ornaments by mouse or touch, saved, and drawn in the world.
 
-**Phase 4: Christmas Eve ending (simple but complete) → the game is GIFTABLE**
+**Phase 4: Christmas Eve ending (simple but complete) → the game is COMPLETE**
 - Ring the farm bell, or go to bed and confirm. A dusk transition leads into the evening gathering at the Middle farm.
 - The scene is built from `endingContribution()` of every registered activity: decorated trees with their real ornaments, the letter and its reply, discoveries found, the companion's moment.
 - All closed calendar doors open as a gift, then the per-character message plays, then gentle credits listing what they did.
@@ -172,7 +172,7 @@ Each phase ends playable and deployed, with `npm test` and the build passing bef
 ## 7. Draft CLAUDE.md
 ```markdown
 # Winter Village – CLAUDE.md
-Cozy 2D top-down browser game (Christmas gift). Phaser + TypeScript + Vite, Tiled maps,
+Cozy 2D top-down browser game (a cozy Christmas game). Phaser + TypeScript + Vite, Tiled maps,
 GitHub Pages: https://leoninni.github.io/winter-village/  ·  Test devices: desktop + iPhone (Safari).
 
 ## Commands
@@ -207,7 +207,7 @@ GitHub Pages: https://leoninni.github.io/winter-village/  ·  Test devices: desk
 
 ## 8. Remaining open questions (none block Phase 0)
 1. Reference images for the six characters and companions: send them before the end of Phase 2.
-2. Spoilers: the repo is public, so the TODO-Leonie texts will be readable on GitHub once filled in. You could fill in the most personal ones in the last commit before giving the gift.
+2. Spoilers: the repo is public, so the TODO-Leonie texts will be readable on GitHub once filled in. You could fill in the most personal ones in the last commit before release.
 
 ## Verification
 - **Every push:** `npm test` and `npm run build` pass locally, and the GitHub Actions run is green.

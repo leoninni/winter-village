@@ -1,9 +1,9 @@
-# Winter Village – CLAUDE.md
+# Snöbyn (winter-village) – CLAUDE.md
 
-Cozy 2D top-down browser game (a Christmas gift). Phaser 4 +
+Cozy 2D top-down browser game (a cozy Christmas game). Phaser 4 +
 TypeScript + Vite, Tiled maps, deployed to GitHub Pages:
 https://leoninni.github.io/winter-village/ · Test devices: desktop + **iPhone (Safari)**.
-Approved plan: `docs/plan.md` (phases 0–4 = giftable,
+Approved plan: `docs/plan.md` (phases 0–4 = complete game,
 then bonus phases B1–B7).
 
 ## Commands

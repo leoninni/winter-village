@@ -1,8 +1,8 @@
-# Winter Village ❄️
+# Snöbyn ❄️
 
 A small, cozy 2D top-down browser game: a snowy Swedish village in the 1920s, three red
 farmhouses, a forest and a frozen lake – in the days before Christmas.
-Made as a Christmas gift.
+A cozy Christmas game.
 
 **Play:** https://leoninni.github.io/winter-village/ (desktop with keyboard, iPhone with tap)
 

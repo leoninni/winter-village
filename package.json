@@ -2,7 +2,7 @@
   "name": "winter-village",
   "private": true,
   "version": "0.0.1",
-  "description": "A cozy snowy Swedish village – a Christmas gift game.",
+  "description": "A cozy snowy Swedish village – a cozy Christmas game.",
   "type": "module",
   "engines": {
     "node": ">=22"
