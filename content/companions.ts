@@ -37,7 +37,7 @@ export const companions: CompanionDef[] = [
     blurb:
       'Ein sehr alter, sehr würdevoller Teddybär. Fährt auf dem Schlitten mit, den du ziehst. ' +
       'Wenn du zu lange rennst … verliert er ein bisschen den Kopf.',
-    followDistance: 26, // rope length
+    followDistance: 34, // rope length
     speed: 0, // pulled by the rope, not walking
   },
 ];

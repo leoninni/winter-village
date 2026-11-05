@@ -39,8 +39,14 @@ export class EventBus<Events extends Record<string, unknown>> {
 
 /** All game events and their payloads. Grows with each phase. */
 export type GameEvents = {
-  /** The overlay asked for an extra flurry of snow (Phase 0 teaser). */
-  'ui:snow-burst': undefined;
+  /** Leave the start/select screens and enter the village. */
+  'flow:enter-world': undefined;
+  /** Back to the start screen (after "Neu anfangen"). */
+  'flow:to-title': undefined;
+  /** The pause menu opened or closed (world input is paused while open). */
+  'ui:menu': { open: boolean };
+  /** The player walked into a named place (content/places.ts id). */
+  'world:area-entered': { id: string };
 };
 
 export const bus = new EventBus<GameEvents>();

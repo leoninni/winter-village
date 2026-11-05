@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { COLORS } from '../theme';
-import { bus } from '../systems/EventBus';
 import { integerZoom } from '../systems/zoom';
 
 /** Logical "stage" of the teaser scene in art pixels. */
@@ -9,12 +8,10 @@ const STAGE_H = 180;
 const GROUND_Y = 120;
 
 /**
- * Phase 0 teaser: three red farmhouses in the snow at night.
- * Proves Phaser rendering, integer zoom, resizing and the HTML overlay on iOS.
+ * Backdrop for the start and select screens: three red farmhouses in the snow at night.
  */
 export class TitleScene extends Phaser.Scene {
   private snow?: Phaser.GameObjects.Particles.ParticleEmitter;
-  private unsubscribe?: () => void;
 
   constructor() {
     super('Title');
@@ -25,10 +22,8 @@ export class TitleScene extends Phaser.Scene {
     this.layout();
 
     this.scale.on(Phaser.Scale.Events.RESIZE, this.layout, this);
-    this.unsubscribe = bus.on('ui:snow-burst', () => this.burst());
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.layout, this);
-      this.unsubscribe?.();
     });
   }
 
@@ -60,6 +55,7 @@ export class TitleScene extends Phaser.Scene {
   private layout(): void {
     const { width, height } = this.scale.gameSize;
     const cam = this.cameras.main;
+    cam.setSize(width, height);
     cam.setZoom(integerZoom(width, height, STAGE_W, STAGE_H));
     cam.centerOn(STAGE_W / 2, STAGE_H / 2);
 
@@ -81,17 +77,5 @@ export class TitleScene extends Phaser.Scene {
     });
     this.snow.setDepth(10);
     this.snow.fastForward(((visH + 10) / 18) * 1000);
-  }
-
-  private burst(): void {
-    const cam = this.cameras.main;
-    const visW = this.scale.gameSize.width / cam.zoom;
-    const visH = this.scale.gameSize.height / cam.zoom;
-    const left = STAGE_W / 2 - visW / 2;
-    const top = STAGE_H / 2 - visH / 2;
-    for (let i = 0; i < 6; i++) {
-      this.snow?.explode(25, left + Math.random() * visW, top + Math.random() * visH * 0.5);
-    }
-    cam.shake(150, 0.004);
   }
 }

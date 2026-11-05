@@ -1,24 +1,31 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
+import { PreloadScene } from './scenes/PreloadScene';
 import { TitleScene } from './scenes/TitleScene';
+import { WorldScene } from './scenes/WorldScene';
+import { computeViewport } from './systems/viewport';
 import { COLORS } from './theme';
 
-/** World tile size in art pixels. Sprites/tiles are drawn at this scale. */
+/** World tile size in art pixels. */
 export const TILE_SIZE = 32;
 
-export const gameConfig: Phaser.Types.Core.GameConfig = {
-  type: Phaser.AUTO,
-  parent: 'game',
-  backgroundColor: COLORS.night,
-  // Crisp pixel art: nearest-neighbour scaling, whole-pixel positions.
-  // Camera zoom is always an integer (see systems/zoom.ts).
-  pixelArt: true,
-  roundPixels: true,
-  scale: {
-    mode: Phaser.Scale.RESIZE,
-    width: window.innerWidth,
-    height: window.innerHeight,
-  },
-  input: { activePointers: 2 },
-  scene: [BootScene, TitleScene],
-};
+export function createGameConfig(): Phaser.Types.Core.GameConfig {
+  const view = computeViewport();
+  return {
+    type: Phaser.AUTO,
+    parent: 'game',
+    backgroundColor: COLORS.night,
+    // Crisp pixel art: no antialiasing, whole-pixel rendering. The canvas is
+    // enlarged by a whole-number CSS zoom (systems/viewport.ts), the camera never zooms.
+    pixelArt: true,
+    roundPixels: true,
+    scale: {
+      mode: Phaser.Scale.NONE,
+      width: view.width,
+      height: view.height,
+      zoom: view.zoom,
+    },
+    input: { activePointers: 2 },
+    scene: [BootScene, PreloadScene, TitleScene, WorldScene],
+  };
+}
