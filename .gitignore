@@ -1,0 +1,26 @@
+# dependencies & build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# env / local overrides
+.env
+.env.*
+*.local
+
+# editors & OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# Tiled session/backup files (keep .tmj/.tsj/.tiled-project)
+*.tiled-session
+*.tmx~
+*.tmj~
+
+# logs
+npm-debug.log*
+*.log
