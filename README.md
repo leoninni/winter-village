@@ -17,7 +17,7 @@ GitHub Actions (`.github/workflows/deploy.yml`).
 ## Commands
 | Command | What it does |
 |---------|--------------|
-| `npm install` | Install dependencies (once) |
+| `npm install` | Install dependencies (once, after cloning) |
 | `npm run dev` | Local dev server at http://localhost:5173 |
 | `npm run dev:phone` | Dev server reachable from your iPhone (see below) |
 | `npm test` | Run all tests (logic + content checks) |
