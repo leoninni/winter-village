@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <rect width="16" height="16" fill="#1d2a44"/>
+  <rect x="2" y="12" width="12" height="4" fill="#f4f7fb"/>
+  <polygon points="3,8 8,3 13,8" fill="#f4f7fb"/>
+  <rect x="4" y="8" width="8" height="5" fill="#a3302a"/>
+  <rect x="7" y="10" width="2" height="3" fill="#f4f7fb"/>
+  <rect x="5" y="9" width="1" height="1" fill="#ffd27a"/>
+  <rect x="10" y="9" width="1" height="1" fill="#ffd27a"/>
+</svg>
