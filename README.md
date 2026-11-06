@@ -23,6 +23,14 @@ GitHub Actions (`.github/workflows/deploy.yml`).
 | `npm test` | Run all tests (logic + content checks) |
 | `npm run build` | Typecheck + production build into `dist/` |
 | `npm run preview` | Serve the production build locally |
+| `npm run gen:placeholders` | Regenerate all placeholder art |
+| `npm run gen:map` / `gen:interiors` | Generate the first village / room maps (refuse to overwrite) |
+
+### Debug mode
+Add `?debug=1` to the URL (e.g. https://leoninni.github.io/winter-village/?debug=1 or
+`http://<your-mac>:5173/?debug=1`). A 🐞 button appears bottom left with:
+teleport to any place or discovery, trigger companion gags instantly (no cooldowns), show all
+discovery spots, switch character/companion, and delete the save. Without the flag it never appears.
 
 ### Testing on your iPhone without deploying
 1. Make sure the Mac and the iPhone are on the **same Wi-Fi**.
@@ -51,15 +59,18 @@ Install the free Tiled editor on macOS with:
 ```sh
 brew install --cask tiled
 ```
-The village is `public/assets/maps/village.tmj` – open it in Tiled to move houses, trees and
-paths. It was generated once by `npm run gen:map`; from now on the file itself is the original
-(the generator refuses to overwrite it). Good to know:
+The village is `public/assets/maps/village.tmj`, the Sonnenpalast `sonnenpalast.tmj` – open them
+in Tiled to move houses, trees, people and discoveries. They were generated once
+(`npm run gen:map`, `npm run gen:interiors`); from now on the files themselves are the original
+(the generators refuse to overwrite them). Good to know:
 - Tilesets must stay **embedded** in the map (Phaser can't load external tileset files).
 - Layer `ground`: the snow/path/ice tiles. Stone walls and fences block walking.
 - Layer `props`: point objects; the object's *Class* is the prop (`farmhouse`, `pine`, `lantern`, …),
   the point is where it touches the ground.
 - Layer `areas`: rectangles with a `contentId` matching `content/places.ts` (place names).
-- Layer `markers`: the `spawn` point.
+- Layer `markers`: `spawn` points (named, e.g. `default`, `norrhagen-door`) and `exit` rectangles.
+- Layers `npcs`, `discoveries`, `things`, `doors`: points with a `contentId` (and e.g. `wander`)
+  that refers to the texts in `content/`.
 - After editing, `npm test` checks that every place is still reachable on foot.
 
 ## Art

@@ -11,7 +11,9 @@ then bonus phases B1–B7).
 - `npm test` – Vitest (logic + content integrity)
 - `npm run build` – `tsc --noEmit` + Vite build
 - `npm run gen:placeholders` – regenerate placeholder PNGs (sizes from `content/sprites.ts` + `src/world/props.ts`)
-- `npm run gen:map` – generate the first `village.tmj` (refuses to overwrite; `-- --force` overwrites Tiled edits!)
+- `npm run gen:map` / `npm run gen:interiors` – generate the first `village.tmj` / room maps
+  (refuse to overwrite; `-- --force` overwrites Tiled edits!)
+- `?debug=1` URL flag → debug panel (`src/debug/`): teleport, gags, show spots, switch, reset
 - Tiled on macOS: `brew install --cask tiled`
 
 ## Golden rules
@@ -45,12 +47,16 @@ then bonus phases B1–B7).
   rounds sprites when the camera is unzoomed. Instead `Scale.NONE` + whole-number `scale.zoom`
   (`src/systems/viewport.ts`) renders small and enlarges the canvas. (RESIZE mode ignores zoom.)
 - Phaser 4 is imported as `import Phaser from 'phaser'`.
-- UI shortcuts (Esc) are DOM listeners in `src/ui/overlay.ts`: Phaser 4's keyboard queue can
-  deliver one key press twice in a frame (seen right after arrow keys).
+- Discrete key presses (Esc, E, Space) are DOM `keydown` listeners, not Phaser: Phaser 4's keyboard
+  queue can deliver one press twice in a frame (Esc after arrow keys), and `JustDown` misses presses
+  shorter than a frame (onUp clears the flag). Phaser keys are only used for held movement keys.
 - Pure logic (no Phaser import) lives in `src/systems/*` so Vitest can run it in Node.
 - `public/assets/maps/village.tmj` is the source of truth (edit in Tiled). Tilesets must be embedded;
   props are point objects whose `type` is a key of `src/world/props.ts`; areas/farms reference
   content via a `contentId` property. `tests/content-integrity.test.ts` checks reachability.
+- World ↔ HTML: the world calls `ui()` (`src/ui/ui.ts`: dialogue, bubbles, cards); the HTML layer
+  pauses the world via `ui:blocking` events. Taps on HTML must be real `<button>`s (iOS Safari).
+- Content → dialogue lives in `src/world/conversations.ts` (pure, tested). Never build German text in scenes.
 - Collision/pathfinding use a 16 px NavGrid (`src/systems/NavGrid.ts`): solid tiles + prop footprints.
 - Santa letter: real DOM `<textarea>`; disable Phaser keyboard capture while it's focused.
 - Formspree endpoint only in `content/settings.ts`, used only by `src/services/formspree.ts`.
