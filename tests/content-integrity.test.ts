@@ -76,9 +76,9 @@ describe('village map', () => {
     for (const a of map.areas) expect(places, `area "${a.id}"`).toHaveProperty(a.id);
   });
 
-  it('has three farmhouses: Norrgården, Mellangården, Södergården', () => {
+  it('has three farmhouses: Norrhagen, Mitthagen, Söderhagen', () => {
     const farms = map.props.filter((p) => p.type === 'farmhouse').map((p) => p.contentId);
-    expect(farms.sort()).toEqual(['mellangarden', 'norrgarden', 'sodergarden']);
+    expect(farms.sort()).toEqual(['mitthagen', 'norrhagen', 'soderhagen']);
   });
 
   it('spawn point is walkable', () => {
@@ -112,5 +112,85 @@ describe('village map', () => {
     }
     // a few pockets between trees are fine, but almost everything must be reachable
     expect(reachable / free).toBeGreaterThan(0.97);
+  });
+});
+
+// ---------------------------------------------------------------- Phase 2: people, things, rooms
+import { animals } from '../content/animals';
+import { doors, things } from '../content/dialogue';
+import { discoveries } from '../content/discoveries';
+import { villagers } from '../content/villagers';
+import { MAPS } from '../src/world/maps';
+
+const allMaps = Object.fromEntries(
+  Object.entries(MAPS).map(([key, info]) => {
+    const raw = JSON.parse(readFileSync(join(PUBLIC, info.file), 'utf8')) as TiledMap;
+    const parsed = parseVillageMap(raw);
+    return [key, { parsed, grid: NavGrid.fromMap(parsed) }];
+  }),
+);
+
+describe('maps: people, things, doors and discoveries', () => {
+  it('every map object refers to existing content', () => {
+    for (const [key, { parsed }] of Object.entries(allMaps)) {
+      for (const p of parsed.points) {
+        const known =
+          p.layer === 'npcs'
+            ? p.type === 'villager'
+              ? villagers.some((v) => v.id === p.contentId)
+              : animals.some((a) => a.id === p.contentId)
+            : p.layer === 'discoveries'
+              ? discoveries.some((d) => d.id === p.contentId)
+              : p.layer === 'things'
+                ? p.contentId in things || p.contentId.startsWith('sp-')
+                : p.contentId in doors;
+        expect(known, `${key}: ${p.layer} "${p.contentId}"`).toBe(true);
+      }
+      for (const e of parsed.exits) expect(doors, `${key}: exit ${e.contentId}`).toHaveProperty(e.contentId);
+    }
+  });
+
+  it('places every discovery exactly once, and there are about 16', () => {
+    const placed = Object.values(allMaps).flatMap(({ parsed }) => parsed.points.filter((p) => p.layer === 'discoveries').map((p) => p.contentId));
+    expect(placed.sort()).toEqual(discoveries.map((d) => d.id).sort());
+    expect(discoveries.length).toBeGreaterThanOrEqual(15);
+  });
+
+  it('every villager lives somewhere', () => {
+    const placed = new Set(Object.values(allMaps).flatMap(({ parsed }) => parsed.points.filter((p) => p.type === 'villager').map((p) => p.contentId)));
+    for (const v of villagers) expect(placed.has(v.id), v.id).toBe(true);
+  });
+
+  it('doors lead to maps and spawn points that exist', () => {
+    for (const [id, d] of Object.entries(doors)) {
+      if (!d.leadsTo) continue;
+      const target = allMaps[d.leadsTo.map];
+      expect(target, `${id} → ${d.leadsTo.map}`).toBeTruthy();
+      expect(target!.parsed.spawns, `${id} → spawn ${d.leadsTo.spawn}`).toHaveProperty(d.leadsTo.spawn);
+      expect(target!.grid.isBoxFree(target!.parsed.spawns[d.leadsTo.spawn]!.x, target!.parsed.spawns[d.leadsTo.spawn]!.y, PLAYER_BOX), `${id}: spawn is walkable`).toBe(true);
+    }
+  });
+
+  it('you can walk up to every person, animal, thing, door and discovery', () => {
+    for (const [key, { parsed, grid }] of Object.entries(allMaps)) {
+      for (const p of parsed.points) {
+        const reach = p.layer === 'npcs' && p.contentId === 'klover' ? 84 : 44;
+        const plan = planPath(grid, parsed.spawn, p, PLAYER_BOX);
+        expect(plan, `${key}: cannot walk to ${p.layer} ${p.contentId}`).not.toBeNull();
+        expect(Math.hypot(plan!.target.x - p.x, plan!.target.y - p.y), `${key}: ${p.contentId} too far from the path`).toBeLessThan(reach);
+      }
+      for (const e of parsed.exits) {
+        const plan = planPath(grid, parsed.spawn, { x: e.x + e.w / 2, y: e.y + e.h - 2 }, PLAYER_BOX);
+        expect(plan && plan.target.y >= e.y, `${key}: exit ${e.contentId} reachable`).toBe(true);
+      }
+    }
+  });
+
+  it('the Sonnenpalast is an indoor room with a fire, books, tea, an armchair and a cat', () => {
+    const sp = allMaps.sonnenpalast!.parsed;
+    expect(sp.indoor).toBe(true);
+    const types = sp.props.map((p) => p.type);
+    for (const t of ['fireplace', 'bookshelf', 'armchair', 'side-table']) expect(types).toContain(t);
+    expect(sp.points.some((p) => p.contentId === 'smulan')).toBe(true);
   });
 });

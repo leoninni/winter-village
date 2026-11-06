@@ -43,10 +43,18 @@ export type GameEvents = {
   'flow:enter-world': undefined;
   /** Back to the start screen (after "Neu anfangen"). */
   'flow:to-title': undefined;
-  /** The pause menu opened or closed (world input is paused while open). */
-  'ui:menu': { open: boolean };
+  /** Something on the HTML layer opened/closed that pauses world input (menu, dialogue, card). */
+  'ui:blocking': { id: string; open: boolean };
   /** The player walked into a named place (content/places.ts id). */
   'world:area-entered': { id: string };
+  /** A discovery was found for the first time (content/discoveries.ts id). */
+  'world:discovery-found': { id: string };
+  /** You talked to a villager or animal (`first` = the very first time). */
+  'world:talked': { id: string; first: boolean };
+  /** A companion gag happened (`first` = first time ever witnessed). */
+  'world:gag': { id: string; first: boolean };
+  /** A place or room was visited (`first` = first time ever). */
+  'world:visited': { id: string; first: boolean };
 };
 
 export const bus = new EventBus<GameEvents>();

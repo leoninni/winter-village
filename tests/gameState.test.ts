@@ -40,7 +40,7 @@ describe('SaveSystem', () => {
   it('round-trips a game', () => {
     const store = memoryStorage();
     const saves = new SaveSystem(store);
-    const s = { ...newGameState(), character: 'isi' as const, companion: 'kratzi' as const, player: { x: 10, y: 20, facing: 'left' as const } };
+    const s = { ...newGameState(), character: 'isi' as const, companion: 'kratzi' as const, player: { map: 'village', x: 10, y: 20, facing: 'left' as const } };
     expect(saves.save(s)).toBe(true);
     expect(saves.load()).toEqual(s);
   });
