@@ -32,8 +32,21 @@ export const strings = {
   confirmYes: 'Ja, neu anfangen',
   confirmNo: 'Lieber nicht',
 
-  controlsTouch: 'Tippe irgendwo hin, um dorthin zu laufen. Weit weg tippen = rennen. Finger gedrückt halten und ziehen = lenken.',
-  controlsKeyboard: 'Laufen: Pfeiltasten oder WASD · Rennen: Shift · Menü: Esc · oder einfach hinklicken',
+  /** what Kratzi's head says when it pops off */
+  kratziPop: 'Plopp!',
+
+  // talking & discovering
+  tapToContinue: 'Tippen zum Weiterlesen',
+  keyToContinue: 'Weiter mit Leertaste',
+  discoveryHeader: 'Entdeckung!',
+  /** {n} = found so far, {total} = all */
+  discoveryCount: '{n} von {total} Entdeckungen',
+  discoveryClose: 'Schön!',
+  /** {title} = the discovery */
+  alreadyFound: 'Das hast du schon entdeckt: {title}',
+
+  controlsTouch: 'Tippe irgendwo hin, um dorthin zu laufen. Weit weg tippen = rennen. Tippe Leute, Tiere und Dinge an, um mit ihnen zu reden.',
+  controlsKeyboard: 'Laufen: Pfeiltasten/WASD · Rennen: Shift · Reden & Anschauen: E oder Leertaste · Menü: Esc · oder einfach hinklicken',
 
   /** Shown on the start screen and in the menu (saves are per browser & device) */
   saveNote:
