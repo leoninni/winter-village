@@ -3,6 +3,7 @@
  * placeholder art. Only used by the tools/ scripts, never shipped to the game.
  */
 import { deflateSync } from 'node:zlib';
+import { DIRECTIONS, type Direction } from '../content/sprites';
 
 export type RGBA = [number, number, number, number];
 
@@ -143,6 +144,31 @@ function chunk(type: string, data: Buffer): Buffer {
   crc.writeUInt32BE(crc32(typeAndData), 0);
   return Buffer.concat([len, typeAndData, crc]);
 }
+
+export function mirror(src: PixelCanvas): PixelCanvas {
+  const out = new PixelCanvas(src.width, src.height);
+  for (let y = 0; y < src.height; y++) {
+    for (let x = 0; x < src.width; x++) {
+      const i = (y * src.width + x) * 4;
+      const j = (y * src.width + (src.width - 1 - x)) * 4;
+      out.data.set(src.data.subarray(i, i + 4), j);
+    }
+  }
+  return out;
+}
+
+/** Builds a standard 4×4 sheet from a frame-drawing function (right = mirrored left). */
+export function sheet(fw: number, fh: number, draw: (dir: Direction, frame: number) => PixelCanvas): PixelCanvas {
+  const c = new PixelCanvas(fw * 4, fh * 4);
+  DIRECTIONS.forEach((dir, row) => {
+    for (let frame = 0; frame < 4; frame++) {
+      const f = dir === 'right' ? mirror(draw('left', frame)) : draw(dir, frame);
+      c.blit(f, frame * fw, row * fh);
+    }
+  });
+  return c;
+}
+
 
 /** Small deterministic RNG so generated art/maps are identical on every run. */
 export function mulberry32(seed: number): () => number {

@@ -11,6 +11,8 @@ export interface Rect {
   h: number;
 }
 
+export type GlowKind = 'window' | 'lantern' | 'fire' | 'lamp';
+
 export interface PropDef {
   file: string;
   width: number;
@@ -18,7 +20,11 @@ export interface PropDef {
   /** Solid ground area relative to the anchor (bottom-centre). Omit = walk-through. */
   footprint?: Rect;
   /** Warm light spots relative to the anchor. */
-  glows?: { x: number; y: number; kind: 'window' | 'lantern' }[];
+  glows?: { x: number; y: number; kind: GlowKind }[];
+  /** Animated fire sprites (fireplace) relative to the anchor. */
+  fires?: { x: number; y: number }[];
+  /** Rising steam (teapot) relative to the anchor. */
+  steam?: { x: number; y: number };
   /** Chimney top relative to the anchor (smoke rises from here). */
   chimney?: { x: number; y: number };
   /** Big props become see-through while you stand behind them. */
@@ -121,6 +127,75 @@ export const props = {
     height: 34,
     footprint: { x: -2, y: -4, w: 4, h: 3 },
     glows: [{ x: 0, y: -28, kind: 'lantern' }],
+  },
+  coop: {
+    file: 'assets/sprites/props/coop.png',
+    width: 44,
+    height: 38,
+    footprint: { x: -20, y: -20, w: 40, h: 18 },
+    glows: [{ x: 11, y: -15, kind: 'lantern' }],
+  },
+
+  // ---- Sonnenpalast (interior)
+  fireplace: {
+    file: 'assets/sprites/props/fireplace.png',
+    width: 72,
+    height: 72,
+    footprint: { x: -34, y: -14, w: 68, h: 12 },
+    fires: [
+      { x: -7, y: -5 },
+      { x: 7, y: -5 },
+    ],
+    glows: [{ x: 0, y: -14, kind: 'fire' }],
+  },
+  bookshelf: {
+    file: 'assets/sprites/props/bookshelf.png',
+    width: 48,
+    height: 72,
+    footprint: { x: -22, y: -14, w: 44, h: 12 },
+  },
+  'bookshelf-memories': {
+    file: 'assets/sprites/props/bookshelf-memories.png',
+    width: 48,
+    height: 72,
+    footprint: { x: -22, y: -14, w: 44, h: 12 },
+  },
+  armchair: {
+    file: 'assets/sprites/props/armchair.png',
+    width: 40,
+    height: 40,
+    footprint: { x: -17, y: -16, w: 34, h: 14 },
+  },
+  'side-table': {
+    file: 'assets/sprites/props/side-table.png',
+    width: 28,
+    height: 30,
+    footprint: { x: -10, y: -8, w: 20, h: 7 },
+    steam: { x: -3, y: -28 },
+  },
+  'floor-lamp': {
+    file: 'assets/sprites/props/floor-lamp.png',
+    width: 14,
+    height: 46,
+    footprint: { x: -3, y: -4, w: 6, h: 3 },
+    glows: [{ x: 0, y: -40, kind: 'lamp' }],
+  },
+  'wood-basket': {
+    file: 'assets/sprites/props/wood-basket.png',
+    width: 26,
+    height: 18,
+    footprint: { x: -11, y: -8, w: 22, h: 7 },
+  },
+  window: {
+    file: 'assets/sprites/props/window.png',
+    width: 36,
+    height: 36,
+  },
+  'book-pile': {
+    file: 'assets/sprites/props/book-pile.png',
+    width: 20,
+    height: 16,
+    footprint: { x: -8, y: -6, w: 16, h: 5 },
   },
 } satisfies Record<string, PropDef>;
 

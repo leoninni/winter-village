@@ -22,7 +22,7 @@ export const TILE = {
   snow4: 15,
 } as const;
 
-export type Surface = 'snow' | 'deep' | 'path' | 'ice' | 'field';
+export type Surface = 'snow' | 'deep' | 'path' | 'ice' | 'field' | 'wood' | 'rug';
 
 export const TILE_PROPS: Record<number, { surface: Surface; collides?: true }> = {
   [TILE.snow]: { surface: 'snow' },
@@ -48,6 +48,45 @@ export const TILESET = {
   image: '../tiles/winter.png',
   textureKey: 'tiles-winter',
   file: 'assets/tiles/winter.png',
+  columns: 8,
+  tileCount: 16,
+  tileSize: 32,
+} as const;
+
+/** Interior tileset (Sonnenpalast and later rooms). */
+export const INTERIOR_TILE = {
+  floor: 0,
+  floor2: 1,
+  rug: 2,
+  rug2: 3,
+  wallpaper: 4,
+  wainscot: 5,
+  sideWall: 6,
+  mat: 7,
+  hearth: 8,
+  frontWall: 9,
+  floor3: 10,
+} as const;
+
+export const INTERIOR_TILE_PROPS: Record<number, { surface: Surface; collides?: true }> = {
+  [INTERIOR_TILE.floor]: { surface: 'wood' },
+  [INTERIOR_TILE.floor2]: { surface: 'wood' },
+  [INTERIOR_TILE.floor3]: { surface: 'wood' },
+  [INTERIOR_TILE.rug]: { surface: 'rug' },
+  [INTERIOR_TILE.rug2]: { surface: 'rug' },
+  [INTERIOR_TILE.mat]: { surface: 'rug' },
+  [INTERIOR_TILE.hearth]: { surface: 'wood', collides: true },
+  [INTERIOR_TILE.wallpaper]: { surface: 'wood', collides: true },
+  [INTERIOR_TILE.wainscot]: { surface: 'wood', collides: true },
+  [INTERIOR_TILE.sideWall]: { surface: 'wood', collides: true },
+  [INTERIOR_TILE.frontWall]: { surface: 'wood', collides: true },
+};
+
+export const INTERIOR_TILESET = {
+  name: 'interior',
+  image: '../tiles/interior.png',
+  textureKey: 'tiles-interior',
+  file: 'assets/tiles/interior.png',
   columns: 8,
   tileCount: 16,
   tileSize: 32,

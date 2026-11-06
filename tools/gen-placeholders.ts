@@ -10,7 +10,25 @@ import { fileURLToPath } from 'node:url';
 import { sprites, type Direction, DIRECTIONS } from '../content/sprites';
 import { FARMHOUSE, props } from '../src/world/props';
 import { TILE } from '../src/world/tiles';
-import { hex, mulberry32, PixelCanvas, type RGBA } from './png';
+import {
+  drawArmchair,
+  drawBirdSheet,
+  drawBookPile,
+  drawBookshelf,
+  drawCatSheet,
+  drawChickenSheet,
+  drawCoop,
+  drawFireplace,
+  drawFireSheet,
+  drawFloorLamp,
+  drawHorseSheet,
+  drawIconSheet,
+  drawInteriorTileset,
+  drawSideTable,
+  drawRoomWindow,
+  drawWoodBasket,
+} from './art-phase2';
+import { hex, mirror, mulberry32, PixelCanvas, sheet, type RGBA } from './png';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = join(ROOT, 'public');
@@ -218,7 +236,7 @@ function drawTileset(): PixelCanvas {
 }
 
 // ---------------------------------------------------------------- characters
-interface CharPalette {
+export interface CharPalette {
   coat: RGBA;
   coatDark: RGBA;
   scarf: RGBA;
@@ -230,7 +248,7 @@ interface CharPalette {
   boots: RGBA;
 }
 
-const SKIN = hex('#f2c9a8');
+export const SKIN = hex('#f2c9a8');
 const SKIN_SHADE = hex('#e0b08c');
 const BLUSH = hex('#ec9a8c');
 const EYE = hex('#2b2420');
@@ -271,13 +289,24 @@ const CHAR_PALETTES: Record<'sonne' | 'isi' | 'ninni', CharPalette> = {
   },
 };
 
+export interface CharStyle {
+  hat?: 'beanie' | 'cap' | 'kerchief' | 'post' | 'braids';
+  beard?: boolean;
+  apron?: boolean;
+  bag?: boolean;
+  /** shorter body (children) */
+  kid?: boolean;
+}
+
 /** Draws one 32×48 character frame facing down/left/up (right = mirrored left). */
-function drawCharFrame(p: CharPalette, dir: Direction, frame: number): PixelCanvas {
+export function drawCharFrame(p: CharPalette, dir: Direction, frame: number, style: CharStyle = {}): PixelCanvas {
   const c = new PixelCanvas(32, 48);
   const side = dir === 'left' || dir === 'right';
   const bob = frame === 2 ? -1 : 0;
   const stepA = frame === 1; // left/front foot forward
   const stepB = frame === 3;
+  const k = style.kid ? 6 : 0; // children: everything above the boots sits lower
+  const hat = style.hat ?? 'beanie';
 
   // boots
   if (side) {
@@ -290,27 +319,41 @@ function drawCharFrame(p: CharPalette, dir: Direction, frame: number): PixelCanv
     c.rect(17, stepB ? 42 : 43, 5, 3, p.boots);
   }
 
-  const y0 = bob;
+  const y0 = bob + k;
+  const coatRows = 16 - k;
   // coat
-  for (let row = 0; row < 16; row++) {
+  for (let row = 0; row < coatRows; row++) {
     const inset = side ? 2 : row < 4 ? 1 : 0;
     const x1 = 8 + inset;
     const x2 = 23 - inset;
     c.rect(x1, y0 + 27 + row, x2 - x1 + 1, 1, p.coat);
     c.rect(x2 - 1, y0 + 27 + row, 2, 1, p.coatDark);
   }
-  c.rect(8, y0 + 41, 16, 2, p.coatDark); // hem
-  if (dir === 'down') for (const by of [31, 35, 39]) c.px(16, y0 + by, p.coatDark);
+  c.rect(8, bob + 41, 16, 2, p.coatDark); // hem
+  if (dir === 'down' && !style.apron) for (const by of [31, 35, 39]) if (by + k < 41) c.px(16, bob + by + k, p.coatDark);
+  if (style.apron) {
+    const apron = hex('#f6f1e6');
+    if (dir === 'down') c.rect(11, y0 + 29, 10, coatRows - 3, apron).px(13, y0 + 33, hex('#e2dccd')).px(18, y0 + 36, hex('#e2dccd'));
+    if (side) c.rect(9, y0 + 29, 3, coatRows - 3, apron);
+  }
+  if (style.bag && dir !== 'up') {
+    const bag = hex('#6b4a2a');
+    if (dir === 'down') {
+      for (let i = 0; i < 9; i++) c.px(10 + i, y0 + 27 + i, bag);
+      c.rect(19, y0 + 34, 6, 5, bag).rect(20, y0 + 35, 4, 1, hex('#c8a43a'));
+    } else c.rect(15, y0 + 33, 7, 6, bag).rect(16, y0 + 34, 5, 1, hex('#c8a43a'));
+  }
 
   // arms + mittens
+  const armLen = style.kid ? 6 : 8;
   if (side) {
     const swing = stepA ? -2 : stepB ? 2 : 0;
-    c.rect(14 + swing, y0 + 29, 4, 8, p.coatDark);
-    c.rect(14 + swing, y0 + 37, 4, 3, p.scarf);
+    c.rect(14 + swing, y0 + 29, 4, armLen, p.coatDark);
+    c.rect(14 + swing, y0 + 29 + armLen, 4, 3, p.scarf);
   } else {
     const sA = stepA ? -1 : stepB ? 1 : 0;
-    c.rect(5, y0 + 29 + sA, 3, 8, p.coatDark).rect(5, y0 + 37 + sA, 3, 3, p.scarf);
-    c.rect(24, y0 + 29 - sA, 3, 8, p.coatDark).rect(24, y0 + 37 - sA, 3, 3, p.scarf);
+    c.rect(5, y0 + 29 + sA, 3, armLen, p.coatDark).rect(5, y0 + 29 + armLen + sA, 3, 3, p.scarf);
+    c.rect(24, y0 + 29 - sA, 3, armLen, p.coatDark).rect(24, y0 + 29 + armLen - sA, 3, 3, p.scarf);
   }
 
   // head
@@ -336,48 +379,58 @@ function drawCharFrame(p: CharPalette, dir: Direction, frame: number): PixelCanv
     c.rect(10, y0 + 21, 2, 1, BLUSH);
     c.px(8, y0 + 19, SKIN); // nose tip
   }
+  if (style.beard && dir !== 'up') {
+    const beard = hex('#eeeae2');
+    if (dir === 'down') c.rect(11, y0 + 20, 10, 6, beard).rect(13, y0 + 26, 6, 2, beard).rect(14, y0 + 21, 4, 1, SKIN_SHADE);
+    else c.rect(9, y0 + 20, 7, 6, beard).rect(10, y0 + 26, 4, 2, beard);
+  }
 
-  // knitted hat with cuff and pompom
-  c.ellipse(8, y0 + 4, 16, 14, p.hat);
-  c.rect(8, y0 + 10, 16, 3, p.hatDark);
-  for (let x = 9; x < 23; x += 3) c.px(x, y0 + 7, p.hatDark);
-  c.ellipse(13, y0 + 0, 6, 6, p.pom);
+  // headwear
+  if (hat === 'beanie' || hat === 'braids') {
+    c.ellipse(8, y0 + 4, 16, 14, p.hat);
+    c.rect(8, y0 + 10, 16, 3, p.hatDark);
+    for (let x = 9; x < 23; x += 3) c.px(x, y0 + 7, p.hatDark);
+    c.ellipse(13, y0 + 0, 6, 6, p.pom);
+    if (hat === 'braids' && dir !== 'up') {
+      const xs = dir === 'down' ? [7, 23] : [20];
+      for (const bx of xs) {
+        c.rect(bx, y0 + 14, 2, 12, p.hair);
+        c.rect(bx, y0 + 25, 2, 2, p.scarf);
+      }
+    }
+    if (hat === 'braids' && dir === 'up') c.rect(10, y0 + 24, 2, 8, p.hair).rect(20, y0 + 24, 2, 8, p.hair);
+  } else if (hat === 'cap') {
+    c.ellipse(9, y0 + 7, 14, 9, p.hat);
+    c.rect(9, y0 + 11, 14, 2, p.hatDark);
+    if (dir === 'down') c.rect(9, y0 + 12, 14, 2, p.hatDark);
+    if (side) c.rect(5, y0 + 11, 6, 2, p.hatDark);
+  } else if (hat === 'post') {
+    c.rect(9, y0 + 5, 14, 7, p.hat);
+    c.rect(9, y0 + 5, 14, 1, p.hatDark);
+    c.rect(9, y0 + 11, 14, 2, hex('#1b1b22'));
+    if (dir === 'down') c.rect(10, y0 + 13, 12, 1, hex('#1b1b22')).rect(15, y0 + 7, 2, 2, hex('#e8c64a'));
+    if (side) c.rect(5, y0 + 12, 6, 2, hex('#1b1b22')).rect(10, y0 + 7, 2, 2, hex('#e8c64a'));
+  } else if (hat === 'kerchief') {
+    c.ellipse(8, y0 + 6, 16, 12, p.hat);
+    c.rect(8, y0 + 12, 2, 8, p.hat).rect(22, y0 + 12, 2, 8, p.hat);
+    for (let x = 10; x < 22; x += 4) c.px(x, y0 + 9, p.pom).px(x + 2, y0 + 12, p.pom);
+    if (dir === 'down') c.rect(14, y0 + 24, 4, 2, p.hatDark);
+  }
 
   // scarf (+ tail)
   c.rect(9, y0 + 25, 14, 3, p.scarf);
   c.rect(9, y0 + 27, 14, 1, p.scarfDark);
-  if (dir === 'down') c.rect(18, y0 + 27, 3, 6, p.scarf).rect(18, y0 + 32, 3, 1, p.scarfDark);
+  if (dir === 'down' && !style.beard) {
+    const tail = style.kid ? 4 : 6;
+    c.rect(18, y0 + 27, 3, tail, p.scarf).rect(18, y0 + 26 + tail, 3, 1, p.scarfDark);
+  }
   if (side) {
     const flutter = frame % 2 === 0 ? 0 : 1;
     c.rect(21, y0 + 25 + flutter, 4, 3, p.scarf).rect(24, y0 + 27 + flutter, 2, 3, p.scarfDark);
   }
-  if (dir === 'up') c.rect(13, y0 + 27, 3, 7, p.scarf);
+  if (dir === 'up') c.rect(13, y0 + 27, 3, 7 - (style.kid ? 3 : 0), p.scarf);
 
   c.outline(hex('#2b2420', 220));
-  return c;
-}
-
-function mirror(src: PixelCanvas): PixelCanvas {
-  const out = new PixelCanvas(src.width, src.height);
-  for (let y = 0; y < src.height; y++) {
-    for (let x = 0; x < src.width; x++) {
-      const i = (y * src.width + x) * 4;
-      const j = (y * src.width + (src.width - 1 - x)) * 4;
-      out.data.set(src.data.subarray(i, i + 4), j);
-    }
-  }
-  return out;
-}
-
-/** Builds a standard 4×4 sheet from a frame-drawing function (right = mirrored left). */
-function sheet(fw: number, fh: number, draw: (dir: Direction, frame: number) => PixelCanvas): PixelCanvas {
-  const c = new PixelCanvas(fw * 4, fh * 4);
-  DIRECTIONS.forEach((dir, row) => {
-    for (let frame = 0; frame < 4; frame++) {
-      const f = dir === 'right' ? mirror(draw('left', frame)) : draw(dir, frame);
-      c.blit(f, frame * fw, row * fh);
-    }
-  });
   return c;
 }
 
@@ -748,6 +801,42 @@ function main(): void {
     save(def.file, sheet(def.frameWidth, def.frameHeight, (d, f) => drawCharFrame(CHAR_PALETTES[id], d, f)));
   }
 
+  // villagers
+  const villagerLooks: Record<'algot' | 'hulda' | 'valdemar' | 'torvald' | 'signe', [CharPalette, CharStyle]> = {
+    algot: [
+      { coat: hex('#6b5a4a'), coatDark: hex('#54463a'), scarf: hex('#8a3b2b'), scarfDark: hex('#6e2e21'), hat: hex('#5a5048'), hatDark: hex('#423a34'), pom: hex('#5a5048'), hair: hex('#e8e4dc'), boots: hex('#3a2e28') },
+      { hat: 'cap', beard: true },
+    ],
+    hulda: [
+      { coat: hex('#7a8fa8'), coatDark: hex('#61738a'), scarf: hex('#f3e8d0'), scarfDark: hex('#d9cbb0'), hat: hex('#c8432f'), hatDark: hex('#a3321f'), pom: hex('#f4f1ea'), hair: hex('#b0763a'), boots: hex('#3a2e28') },
+      { hat: 'kerchief', apron: true },
+    ],
+    valdemar: [
+      { coat: hex('#2f4a7a'), coatDark: hex('#233a60'), scarf: hex('#c8a43a'), scarfDark: hex('#a8862a'), hat: hex('#2f4a7a'), hatDark: hex('#1d2f50'), pom: hex('#2f4a7a'), hair: hex('#5a3a2a'), boots: hex('#2b2420') },
+      { hat: 'post', bag: true },
+    ],
+    torvald: [
+      { coat: hex('#8a6a3a'), coatDark: hex('#6e5430'), scarf: hex('#3f6e5a'), scarfDark: hex('#2f5546'), hat: hex('#4a3a2a'), hatDark: hex('#35291e'), pom: hex('#4a3a2a'), hair: hex('#d9b26a'), boots: hex('#3a2e28') },
+      { hat: 'cap' },
+    ],
+    signe: [
+      { coat: hex('#c8432f'), coatDark: hex('#a3321f'), scarf: hex('#f6d36b'), scarfDark: hex('#d8b44a'), hat: hex('#3aa3a0'), hatDark: hex('#2c827f'), pom: hex('#ffffff'), hair: hex('#e0a060'), boots: hex('#3a2e28') },
+      { hat: 'braids', kid: true },
+    ],
+  };
+  for (const [id, [palette, style]] of Object.entries(villagerLooks)) {
+    save(sprites[id as keyof typeof villagerLooks].file, sheet(32, 48, (d, f) => drawCharFrame(palette, d, f, style)));
+  }
+
+  // animals, icons, fire
+  save(sprites.cat.file, drawCatSheet());
+  save(sprites.horse.file, drawHorseSheet());
+  save(sprites.chicken.file, drawChickenSheet());
+  save(sprites.bird.file, drawBirdSheet());
+  save(sprites.icons.file, drawIconSheet());
+  save(sprites.fire.file, drawFireSheet());
+  save('assets/tiles/interior.png', drawInteriorTileset());
+
   const teddy: DogPalette = {
     fur: hex('#e3b86f'),
     dark: hex('#c4914a'),
@@ -789,6 +878,16 @@ function main(): void {
     well: drawWell,
     woodpile: drawWoodpile,
     lantern: drawLantern,
+    coop: drawCoop,
+    fireplace: drawFireplace,
+    bookshelf: () => drawBookshelf(false),
+    'bookshelf-memories': () => drawBookshelf(true),
+    armchair: drawArmchair,
+    'side-table': drawSideTable,
+    'floor-lamp': drawFloorLamp,
+    'wood-basket': drawWoodBasket,
+    window: drawRoomWindow,
+    'book-pile': drawBookPile,
   };
   for (const [key, draw] of Object.entries(propArt)) {
     const def = props[key as keyof typeof props];
