@@ -3,9 +3,9 @@
  * (custom property `contentId`). The name pops up briefly when you walk in.
  */
 export const places = {
-  norrgarden: { name: 'Norrgården', subtitle: 'Der nördliche Hof' },
-  mellangarden: { name: 'Mellangården', subtitle: 'Der mittlere Hof' },
-  sodergarden: { name: 'Södergården', subtitle: 'Der südliche Hof' },
+  norrhagen: { name: 'Norrhagen', subtitle: 'Der nördliche Hof' },
+  mitthagen: { name: 'Mitthagen', subtitle: 'Der mittlere Hof' },
+  soderhagen: { name: 'Söderhagen', subtitle: 'Der südliche Hof' },
   granskogen: { name: 'Granskogen', subtitle: 'Der Tannenwald' },
   akrarna: { name: 'Die Felder', subtitle: 'Unter einer dicken Schneedecke' },
   lillsjon: { name: 'Lillsjön', subtitle: 'Der kleine See – fest zugefroren' },

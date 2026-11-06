@@ -12,25 +12,22 @@ export const characters: CharacterDef[] = [
   {
     id: 'sonne',
     name: 'Sonne',
-    // TODO Leonie: Sonnes Kurzbeschreibung persönlicher machen (Eigenheiten, Lieblingsdinge)
     blurb:
-      'Liebt dicke Bücher, heißen Tee und das Knistern im Kamin. ' +
-      'Hat im Dorf einen ganz besonderen Lieblingsplatz: den Sonnenpalast.',
+      'Liebt Tee, dicke Bücher, Selleriesaft und Datteln. Sucht ständig ihre Lesebrille – ' +
+      'meistens sitzt sie auf ihrem Kopf. Ihr Lieblingsplatz: der Sonnenpalast.',
   },
   {
     id: 'isi',
     name: 'Isi',
-    // TODO Leonie: Isis Kurzbeschreibung (Eigenheiten, Lieblingsdinge, ein kleiner Insider)
     blurb:
-      'Hat immer eine Idee und meistens auch einen Plan B. ' +
-      'Findet, dass man Schneeballschlachten gar nicht früh genug anfangen kann.',
+      'Herz in Wien, Fuß am Ball, Schläger in der Hand. Im Sommer Aperol Spritz, im Winter ' +
+      'Glühwein. Spricht längst feinstes Wienerisch: „Na servas, is des leiwand do!“',
   },
   {
     id: 'ninni',
     name: 'Ninni',
-    // TODO Leonie: Ninnis Kurzbeschreibung (Eigenheiten, Lieblingsdinge, ein kleiner Insider)
     blurb:
-      'Entdeckt Dinge, an denen alle anderen vorbeilaufen. ' +
-      'Hat stets ein Pfefferkuchen-Krümelchen in der Manteltasche.',
+      'Liebt schöne Dinge, gutes Design und alles, was neugierig macht. Denkt über jede ' +
+      'Schneeflocke dreimal nach – und dann noch ein viertes Mal. Bester Freund: Pauli.',
   },
 ];
