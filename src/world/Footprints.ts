@@ -21,7 +21,7 @@ export class Footprints {
    * Returns false if the surface takes no prints.
    */
   stamp(kind: PrintKind, x: number, y: number, horizontal: boolean, surface: Surface): boolean {
-    if (surface === 'ice') return false;
+    if (surface === 'ice' || surface === 'wood' || surface === 'rug') return false;
     let alpha = kind === 'sled' ? 0.4 : 0.5;
     if (surface === 'path') alpha *= 0.45;
     let texture: string;

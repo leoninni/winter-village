@@ -9,6 +9,8 @@ import { places } from '../../content/places';
 import { strings } from '../../content/strings';
 import { bus } from '../systems/EventBus';
 import { kratziPreview, spritePreview } from './spritePreview';
+import { Bubbles, Cards, DialogueBox } from './story';
+import { setUI } from './ui';
 
 interface AppLike {
   readonly hasProgress: boolean;
@@ -48,19 +50,24 @@ class Overlay {
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
   private hintShown = false;
   private menuOpen = false;
+  private story: { dialogue: DialogueBox; bubbles: Bubbles; cards: Cards };
 
   constructor(
     root: HTMLElement,
     private readonly app: AppLike,
   ) {
     root.innerHTML = '';
-    root.append(this.screen, this.hud, this.modal);
+    root.append(this.screen, this.hud);
+    this.story = { dialogue: new DialogueBox(root), bubbles: new Bubbles(root), cards: new Cards(root) };
+    root.append(this.modal);
+    setUI(this.story);
     // Esc is handled here, not in Phaser: Phaser 4's keyboard queue can deliver a
     // single Esc press twice in one frame (seen right after arrow keys), which
     // would open and instantly close the menu.
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape' || e.repeat) return;
       const inWorld = this.hud.childElementCount > 0;
+      if (this.story.dialogue.open) return; // finish reading first
       if (inWorld) this.toggleMenu();
       else if (this.modal.childElementCount) this.closeModal();
     });
@@ -69,6 +76,7 @@ class Overlay {
   // ------------------------------------------------------------ start screen
   showStart(): void {
     this.hud.replaceChildren();
+    this.story.bubbles.clear();
     this.closeModal();
     const card = el('div', 'card title-card');
     card.append(el('h1', 'title', strings.gameTitle), el('p', 'subtitle', strings.gameSubtitle));
@@ -179,6 +187,10 @@ class Overlay {
     }
   }
 
+  hideHint(): void {
+    this.hintEl.classList.remove('show');
+  }
+
   placeToast(id: string): void {
     const place = (places as Record<string, { name: string; subtitle: string }>)[id];
     if (!place) return;
@@ -230,7 +242,7 @@ class Overlay {
     this.modal.replaceChildren(backdrop);
     if (isMenu && !this.menuOpen) {
       this.menuOpen = true;
-      bus.emit('ui:menu', { open: true });
+      bus.emit('ui:blocking', { id: 'menu', open: true });
     }
     card.querySelector('button')?.focus({ preventScroll: true });
   }
@@ -239,7 +251,7 @@ class Overlay {
     this.modal.replaceChildren();
     if (this.menuOpen) {
       this.menuOpen = false;
-      bus.emit('ui:menu', { open: false });
+      bus.emit('ui:blocking', { id: 'menu', open: false });
     }
   }
 }
@@ -250,4 +262,5 @@ export function mountOverlay(root: HTMLElement, app: AppLike): void {
   bus.on('flow:enter-world', () => ui.showWorld());
   bus.on('flow:to-title', () => ui.showStart());
   bus.on('world:area-entered', ({ id }) => ui.placeToast(id));
+  bus.on('ui:blocking', ({ open }) => open && ui.hideHint());
 }

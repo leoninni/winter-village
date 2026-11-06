@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 import { sprites } from '../../content/sprites';
+import { MAPS, mapCacheKey, type MapKey } from '../world/maps';
 import { props } from '../world/props';
-import { TILESET } from '../world/tiles';
-
-export const MAP_KEY = 'village';
+import { INTERIOR_TILESET, TILESET } from '../world/tiles';
 
 /** Loads all sprite sheets (from content/sprites.ts), props, tileset and map. */
 export class PreloadScene extends Phaser.Scene {
@@ -17,7 +16,8 @@ export class PreloadScene extends Phaser.Scene {
     }
     for (const [key, def] of Object.entries(props)) this.load.image(propTextureKey(key), def.file);
     this.load.image(TILESET.textureKey, TILESET.file);
-    this.load.tilemapTiledJSON(MAP_KEY, 'assets/maps/village.tmj');
+    this.load.image(INTERIOR_TILESET.textureKey, INTERIOR_TILESET.file);
+    for (const [key, info] of Object.entries(MAPS)) this.load.tilemapTiledJSON(mapCacheKey(key as MapKey), info.file);
   }
 
   create(): void {

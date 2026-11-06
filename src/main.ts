@@ -3,6 +3,8 @@ import { strings } from '../content/strings';
 import { createGameConfig } from './config';
 import { app } from './game/App';
 import { bus } from './systems/EventBus';
+import { debugEnabled } from './debug/hooks';
+import type { GagId } from './entities/companions/Companion';
 import { keepViewportFitted } from './systems/viewport';
 import { mountOverlay } from './ui/overlay';
 import './ui/styles.css';
@@ -41,5 +43,17 @@ bus.on('flow:to-title', () => {
 const uiRoot = document.getElementById('ui');
 if (uiRoot) mountOverlay(uiRoot, app);
 
-// for debugging in the browser console
-(window as unknown as { snobyn?: unknown }).snobyn = { game, app };
+// ?debug=1 → testing panel (never shown without the flag)
+if (debugEnabled()) {
+  void import('./debug/DebugPanel').then(({ mountDebugPanel }) =>
+    mountDebugPanel({
+      restartWorld: (gag?: GagId) => {
+        game.scene.stop('Title');
+        game.scene.stop('World');
+        game.scene.start('World', gag ? { debugGag: gag } : {});
+      },
+    }),
+  );
+  // handy in the browser console, too
+  (window as unknown as { snobyn?: unknown }).snobyn = { game, app };
+}

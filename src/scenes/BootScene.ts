@@ -47,6 +47,25 @@ export class BootScene extends Phaser.Scene {
         g.fillStyle(0xffb84d, 0.1).fillEllipse(28, 10, w, h);
       }
     });
+    this.gen('glow-fire', 96, 80, (g) => {
+      for (const [w, h, a] of [
+        [96, 80, 0.08],
+        [76, 62, 0.09],
+        [56, 46, 0.1],
+        [36, 30, 0.12],
+      ] as const) {
+        g.fillStyle(0xff9a3c, a).fillEllipse(48, 40, w, h);
+      }
+    });
+    this.gen('glow-ground-big', 120, 40, (g) => {
+      for (const [w, h] of [
+        [120, 40],
+        [90, 28],
+        [60, 18],
+      ] as const) {
+        g.fillStyle(0xff9a3c, 0.09).fillEllipse(60, 20, w, h);
+      }
+    });
     this.gen('shadow', 16, 6, (g) => g.fillStyle(0x24324f, 0.22).fillEllipse(8, 3, 16, 6));
     this.gen('shadow-small', 12, 5, (g) => g.fillStyle(0x24324f, 0.22).fillEllipse(6, 2.5, 12, 5));
   }
@@ -65,6 +84,27 @@ export class BootScene extends Phaser.Scene {
   }
 
   private makeMisc(): void {
+    this.gen('spark', 2, 2, (g) => g.fillStyle(0xffc04a, 1).fillRect(0, 0, 2, 2));
+    this.gen('star', 5, 5, (g) => g.fillStyle(0xffe27a, 1).fillRect(2, 0, 1, 5).fillRect(0, 2, 5, 1).fillStyle(0xffffff, 1).fillRect(2, 2, 1, 1));
+    this.gen('zzz', 5, 5, (g) => g.fillStyle(0xf4f7fb, 1).fillRect(0, 0, 5, 1).fillRect(3, 1, 1, 1).fillRect(2, 2, 1, 1).fillRect(1, 3, 1, 1).fillRect(0, 4, 5, 1));
+    this.gen('hole', 12, 6, (g) => g.fillStyle(0x8597b8, 0.55).fillEllipse(6, 3, 12, 6).fillStyle(0x5f6f90, 0.5).fillEllipse(6, 3, 7, 3));
+    this.gen('exit-arrow', 9, 7, (g) => g.fillStyle(0xfdfcf7, 1).fillTriangle(0, 0, 9, 0, 4.5, 7).fillStyle(0xd94b3d, 1).fillTriangle(2, 1, 7, 1, 4.5, 5));
+    // "…" prompt bubble over things you can talk to
+    this.gen('prompt', 13, 11, (g) => {
+      g.fillStyle(0x2b2420, 1).fillRect(1, 0, 11, 8).fillRect(0, 1, 13, 6).fillRect(5, 8, 3, 1).fillRect(6, 9, 1, 1);
+      g.fillStyle(0xfdfcf7, 1).fillRect(2, 1, 9, 6).fillRect(1, 2, 11, 4).fillRect(6, 7, 1, 1);
+      g.fillStyle(0x2b2420, 1).fillRect(3, 4, 1, 1).fillRect(6, 4, 1, 1).fillRect(9, 4, 1, 1);
+    });
+    // discovery glint: 2-frame sparkle (7×7 each)
+    this.gen('glint', 14, 7, (g) => {
+      g.fillStyle(0xffffff, 1).fillRect(3, 0, 1, 7).fillRect(0, 3, 7, 1).fillStyle(0xffe27a, 1).fillRect(3, 3, 1, 1);
+      g.fillStyle(0xffffff, 1).fillRect(10, 2, 1, 3).fillRect(9, 3, 3, 1).fillStyle(0xffe27a, 0.8).fillRect(8, 1, 1, 1).fillRect(12, 5, 1, 1);
+    });
+    const glint = this.textures.get('glint');
+    glint.add(0, 0, 0, 0, 7, 7);
+    glint.add(1, 0, 7, 0, 7, 7);
+    this.anims.create({ key: 'glint:sparkle', frames: [0, 1, 0, 1, 1].map((frame) => ({ key: 'glint', frame })), frameRate: 4, repeat: -1 });
+
     this.gen('puff', 4, 4, (g) => g.fillStyle(0xffffff, 1).fillRect(1, 0, 2, 4).fillRect(0, 1, 4, 2));
     // tap marker: 4 frames of a pulsing ring, 16×10 each
     const ring = (g: Phaser.GameObjects.Graphics, ox: number, w: number, h: number) => {

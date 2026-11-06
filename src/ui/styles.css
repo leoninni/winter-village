@@ -384,3 +384,326 @@ body {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------- dialogue */
+.layer-dialogue:empty,
+.layer-cards:empty,
+.layer-bubbles:empty {
+  display: none;
+}
+
+.layer-dialogue {
+  pointer-events: auto;
+}
+
+.dialogue-catcher {
+  all: unset;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 calc(10px + var(--safe-r)) calc(12px + var(--safe-b)) calc(10px + var(--safe-l));
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dialogue {
+  position: relative;
+  width: 100%;
+  max-width: 34rem;
+  min-height: 6.5rem;
+  background: rgb(255 250 240 / 96%);
+  border: 3px solid var(--red);
+  border-radius: 14px;
+  box-shadow: 0 5px 0 var(--red-dark), 0 10px 28px rgb(0 0 0 / 35%);
+  padding: 1.1rem 1rem 1.6rem;
+  font-family: Georgia, 'Iowan Old Style', serif;
+  color: var(--ink);
+  text-align: left;
+  animation: pop-in 180ms ease-out;
+}
+
+.dialogue-name {
+  position: absolute;
+  top: -0.95rem;
+  left: 0.9rem;
+  background: var(--red);
+  color: var(--paper);
+  font-weight: bold;
+  border-radius: 999px;
+  padding: 0.15rem 0.8rem;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 0 var(--red-dark);
+}
+
+.dialogue-role {
+  font-weight: normal;
+  font-style: italic;
+  opacity: 0.85;
+  font-size: 0.8rem;
+}
+
+.dialogue-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.dialogue-text.action {
+  font-style: italic;
+  color: #5a4a40;
+}
+
+.dialogue-hint {
+  position: absolute;
+  right: 0.9rem;
+  bottom: 0.4rem;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ---------------------------------------------------------------- speech bubbles */
+.layer-bubbles {
+  pointer-events: none !important;
+}
+
+.bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: 14rem;
+  width: max-content;
+  background: #fffaf0;
+  color: var(--ink);
+  border: 2px solid #2b2420;
+  border-radius: 10px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  box-shadow: 0 3px 0 rgb(0 0 0 / 20%);
+  transition: opacity 400ms;
+  will-change: transform;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 10px;
+  height: 10px;
+  background: #fffaf0;
+  border-right: 2px solid #2b2420;
+  border-bottom: 2px solid #2b2420;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.bubble.action {
+  font-style: italic;
+  background: #eef3fa;
+  border-color: #5a6a8a;
+}
+
+.bubble.action::after {
+  background: #eef3fa;
+  border-color: #5a6a8a;
+}
+
+.bubble.fading {
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------- discovery card */
+.layer-cards {
+  pointer-events: auto;
+}
+
+.discovery-card {
+  text-align: center;
+  max-width: 24rem;
+}
+
+.discovery-header {
+  display: inline-block;
+  background: #e8b443;
+  color: #4a3010;
+  font-weight: bold;
+  border-radius: 999px;
+  padding: 0.15rem 0.9rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+.discovery-pic {
+  display: flex;
+  justify-content: center;
+  margin: 0.6rem auto 0.2rem;
+  animation: wiggle 1.6s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  25% {
+    transform: rotate(-4deg);
+  }
+  75% {
+    transform: rotate(4deg);
+  }
+}
+
+.discovery-title {
+  margin: 0.2rem 0 0.5rem;
+  color: var(--red);
+  font-size: 1.35rem;
+}
+
+.discovery-text,
+.discovery-extra {
+  margin: 0 0 0.6rem;
+  line-height: 1.45;
+}
+
+.discovery-extra {
+  font-style: italic;
+  color: #5a4a40;
+}
+
+.discovery-count {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* ---------------------------------------------------------------- title banner */
+.title-banner {
+  position: absolute;
+  top: calc(64px + var(--safe-t));
+  left: 50%;
+  transform: translate(-50%, -12px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms, transform 600ms;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgb(255 250 240 / 94%);
+  border: 2px solid var(--red);
+  border-radius: 14px;
+  padding: 0.45rem 1.4rem 0.55rem;
+  overflow: hidden;
+}
+
+.title-banner strong {
+  font-size: 1.5rem;
+  color: var(--red);
+}
+
+.title-banner span {
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.title-banner.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.title-banner.special {
+  background: linear-gradient(#fff6dc, #ffe7a8);
+  border: 3px solid #c8943a;
+  box-shadow: 0 0 0 4px rgb(255 210 122 / 35%), 0 8px 26px rgb(120 60 10 / 35%);
+}
+
+.title-banner.special strong {
+  color: #9a5a14;
+  font-size: 1.8rem;
+  letter-spacing: 0.04em;
+}
+
+.sparkle {
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: twinkle 1.4s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    transform: translateY(-14px) scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(4px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------- debug panel (?debug=1) */
+.debug {
+  position: fixed;
+  left: calc(8px + var(--safe-l));
+  bottom: calc(8px + var(--safe-b));
+  z-index: 10;
+  font: 13px/1.3 -apple-system, system-ui, sans-serif;
+}
+
+.debug button,
+.debug select {
+  font: inherit;
+  min-height: 34px;
+  touch-action: manipulation;
+}
+
+.debug-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  background: rgb(0 0 0 / 45%);
+  font-size: 20px;
+}
+
+.debug-panel {
+  margin-top: 6px;
+  width: min(92vw, 22rem);
+  max-height: 60vh;
+  overflow: auto;
+  touch-action: pan-y;
+  background: rgb(20 20 28 / 92%);
+  color: #eee;
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.debug-panel[hidden] {
+  display: none;
+}
+
+.debug-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.debug-info {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  opacity: 0.85;
+}

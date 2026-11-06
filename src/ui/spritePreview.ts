@@ -22,9 +22,9 @@ function setFrame(el: HTMLElement, key: SpriteKey, frame: number, scale: number)
 }
 
 /** One sprite frame (or looping animation) at `scale`× size. */
-export function spritePreview(key: SpriteKey, anim: string, scale: number, animate = false): HTMLElement {
+export function spritePreview(key: SpriteKey, anim: string, scale: number, animate = false, frame?: number): HTMLElement {
   const def = sprites[key];
-  const frames = (def.anims as Record<string, { frames: number[] }>)[anim]?.frames ?? [0];
+  const frames = frame !== undefined ? [frame] : ((def.anims as Record<string, { frames: number[] }>)[anim]?.frames ?? [0]);
   const el = document.createElement('div');
   el.className = 'sprite-preview';
   el.style.width = `${def.frameWidth * scale}px`;
