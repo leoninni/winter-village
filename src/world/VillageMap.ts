@@ -21,6 +21,26 @@ export interface Area {
   h: number;
 }
 
+/** A point object from one of the content layers (npcs, discoveries, things, doors). */
+export interface MapPoint {
+  layer: 'npcs' | 'discoveries' | 'things' | 'doors';
+  /** object class in Tiled, e.g. 'villager' | 'animal' | 'discovery' | 'thing' | 'door' */
+  type: string;
+  contentId: string;
+  x: number;
+  y: number;
+  /** other custom properties (e.g. wander, variant) */
+  props: Record<string, string | number | boolean>;
+}
+
+export interface Exit {
+  contentId: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface VillageMap {
   cols: number;
   rows: number;
@@ -33,7 +53,13 @@ export interface VillageMap {
   solid: boolean[];
   props: PlacedProp[];
   areas: Area[];
+  /** default spawn */
   spawn: { x: number; y: number };
+  /** named spawn points (marker name → position); 'default' is `spawn` */
+  spawns: Record<string, { x: number; y: number }>;
+  points: MapPoint[];
+  exits: Exit[];
+  indoor: boolean;
 }
 
 export class MapFormatError extends Error {}
@@ -83,8 +109,25 @@ export function parseVillageMap(tmj: TiledMap): VillageMap {
     h: o.height,
   }));
 
-  const spawnObj = objLayer('markers')?.objects.find((o) => o.type === 'spawn');
-  if (!spawnObj) throw new MapFormatError('map needs a "spawn" point in the "markers" layer');
+  const spawns: Record<string, { x: number; y: number }> = {};
+  const exits: Exit[] = [];
+  for (const o of objLayer('markers')?.objects ?? []) {
+    if (o.type === 'spawn') spawns[o.name || 'default'] = { x: o.x, y: o.y };
+    if (o.type === 'exit') exits.push({ contentId: String(prop(o, 'contentId') ?? o.name), x: o.x, y: o.y, w: o.width, h: o.height });
+  }
+  const spawnPos = spawns.default ?? Object.values(spawns)[0];
+  if (!spawnPos) throw new MapFormatError('map needs a "spawn" point in the "markers" layer');
+
+  const points: MapPoint[] = [];
+  for (const layer of ['npcs', 'discoveries', 'things', 'doors'] as const) {
+    for (const o of objLayer(layer)?.objects ?? []) {
+      const contentId = prop(o, 'contentId');
+      if (typeof contentId !== 'string') throw new MapFormatError(`object ${o.id} in "${layer}" needs a contentId`);
+      const extra: Record<string, string | number | boolean> = {};
+      for (const p of o.properties ?? []) if (p.name !== 'contentId') extra[p.name] = p.value;
+      points.push({ layer, type: o.type, contentId, x: o.x, y: o.y, props: extra });
+    }
+  }
 
   return {
     cols: tmj.width,
@@ -96,7 +139,11 @@ export function parseVillageMap(tmj: TiledMap): VillageMap {
     solid,
     props,
     areas,
-    spawn: { x: spawnObj.x, y: spawnObj.y },
+    spawn: spawnPos,
+    spawns,
+    points,
+    exits,
+    indoor: prop(tmj, 'indoor') === true,
   };
 }
 

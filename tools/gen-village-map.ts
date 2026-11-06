@@ -123,7 +123,16 @@ reserve(32, 23, 14, 4);
 reserve(32, 4, 20, 3);
 
 // --- the three farms (house door rows 12, 24, 36)
-const objects: { layer: 'props' | 'markers' | 'areas'; obj: Omit<TiledObject, 'id'> }[] = [];
+type LayerName = 'props' | 'markers' | 'areas' | 'npcs' | 'discoveries' | 'things' | 'doors';
+const objects: { layer: LayerName; obj: Omit<TiledObject, 'id'> }[] = [];
+const str = (name: string, value: string): TiledProperty => ({ name, type: 'string', value });
+const int = (name: string, value: number): TiledProperty => ({ name, type: 'int', value });
+/** A point in one of the content layers (npcs, discoveries, things, doors, markers). */
+const marker = (layer: LayerName, type: string, px: number, py: number, properties: TiledProperty[] = [], name = '') =>
+  objects.push({
+    layer,
+    obj: { name, type, x: Math.round(px), y: Math.round(py), width: 0, height: 0, rotation: 0, visible: true, point: true, properties },
+  });
 const point = (type: PropType | 'spawn', px: number, py: number, properties?: TiledProperty[]) =>
   objects.push({
     layer: type === 'spawn' ? 'markers' : 'props',
@@ -131,9 +140,9 @@ const point = (type: PropType | 'spawn', px: number, py: number, properties?: Ti
   });
 
 const farms = [
-  { id: 'norrgarden', doorRow: 12, shed: true, barn: false },
-  { id: 'mellangarden', doorRow: 24, shed: false, barn: true },
-  { id: 'sodergarden', doorRow: 36, shed: true, barn: false },
+  { id: 'norrhagen', doorRow: 12, shed: true, barn: false },
+  { id: 'mitthagen', doorRow: 24, shed: false, barn: true },
+  { id: 'soderhagen', doorRow: 36, shed: true, barn: false },
 ];
 for (const farm of farms) {
   const by = farm.doorRow * T;
@@ -159,6 +168,23 @@ for (const farm of farms) {
 point('well', 25 * T + 16, 28 * T + 8);
 point('mailbox', 28 * T + 20, 24 * T - 6);
 reserve(24, 26, 4, 4);
+
+// Klöver's paddock below the barn
+for (let x = 10; x <= 15; x++) {
+  set(x, 26, TILE.fenceH);
+  set(x, 30, TILE.fenceH);
+}
+for (let y = 27; y <= 29; y++) {
+  set(10, y, TILE.fenceV);
+  set(15, y, TILE.fenceV);
+}
+reserve(9, 25, 8, 7);
+// chicken coop at Söderhagen
+point('coop', 28 * T, 35 * T + 4);
+reserve(26, 33, 4, 4);
+// a birch for the pinecone nest, a big pine for the tomte door
+point('birch', 53 * T, 40 * T + 4);
+point('pine', 6 * T, 12 * T);
 
 // lanterns along Bygatan
 for (const row of [8, 17, 29, 41]) point('lantern', 32 * T + 20, row * T + 24);
@@ -204,8 +230,66 @@ for (const [tx, ty] of [
   point('rock', tx! * T, ty! * T);
 }
 
-// --- spawn in front of Mellangården
-point('spawn', 22 * T, 24 * T + 22);
+// --- spawn points: default (new game) and in front of the Norrhagen door (back from the Sonnenpalast)
+marker('markers', 'spawn', 22 * T, 24 * T + 22, [], 'default');
+marker('markers', 'spawn', 22 * T, 12 * T + 22, [], 'norrhagen-door');
+
+// --- doors (interact to enter or knock)
+for (const [id, row] of [
+  ['door-norrhagen', 12],
+  ['door-mitthagen', 24],
+  ['door-soderhagen', 36],
+] as const) {
+  marker('doors', 'door', 22 * T, row * T + 4, [str('contentId', id)]);
+}
+
+// --- things to look at (content/dialogue.ts)
+marker('things', 'thing', 28 * T + 20, 24 * T - 4, [str('contentId', 'mailbox')]);
+marker('things', 'thing', 25 * T + 16, 28 * T + 10, [str('contentId', 'well')]);
+marker('things', 'thing', 15 * T + 2, 12 * T + 22, [str('contentId', 'woodpile')]);
+marker('things', 'thing', 15 * T + 2, 36 * T + 22, [str('contentId', 'woodpile')]);
+marker('things', 'thing', 13 * T + 16, 24 * T + 2, [str('contentId', 'barn')]);
+
+// --- villagers & animals (wander = how far they stroll from home, px)
+marker('npcs', 'villager', 17 * T, 13 * T + 8, [str('contentId', 'algot'), int('wander', 44)]);
+marker('npcs', 'villager', 25 * T, 26 * T, [str('contentId', 'hulda'), int('wander', 40)]);
+marker('npcs', 'villager', 31 * T, 18 * T, [str('contentId', 'valdemar'), int('wander', 220)]);
+marker('npcs', 'villager', 16 * T + 20, 28 * T + 8, [str('contentId', 'torvald'), int('wander', 20)]);
+marker('npcs', 'villager', 22 * T, 40 * T + 10, [str('contentId', 'signe'), int('wander', 80)]);
+marker('npcs', 'animal', 14 * T, 29 * T, [str('contentId', 'klover'), int('wander', 0)]);
+for (const [x, y, brown] of [
+  [26.2, 37.4, false],
+  [27.3, 37.9, true],
+  [28.4, 37.3, false],
+  [29.2, 38.2, true],
+] as const) {
+  marker('npcs', 'animal', x * T, y * T, [str('contentId', 'chickens'), int('wander', 36), str('variant', brown ? 'brown' : 'white')]);
+}
+for (const [x, y] of [
+  [24.2, 29.7],
+  [24.9, 30.1],
+  [23.5, 30.3],
+] as const) {
+  marker('npcs', 'animal', x * T, y * T, [str('contentId', 'bullfinches'), int('wander', 24)]);
+}
+
+// --- discoveries (content/discoveries.ts)
+const disc = (id: string, x: number, y: number) => marker('discoveries', 'discovery', x * T, y * T, [str('contentId', id)]);
+disc('lost-mitten', 19.5, 16.05);
+disc('snow-angel', 40, 27.2);
+disc('frozen-pike', 49, 36);
+disc('pinecone-nest', 53.4, 40.5);
+disc('old-sled', 57, 9);
+disc('horseshoe', 17.2, 25.6);
+disc('cloudberry-jam', 30.6, 34.4);
+disc('tomte-door', 6.1, 12.4);
+disc('moose-tracks', 34.6, 12);
+disc('vienna-postcard', 27.2, 23.6);
+disc('perfect-snowflake', 25.5, 28.9);
+disc('personal-1', 8, 40);
+disc('personal-2', 54, 17);
+disc('personal-3', 38, 43.2);
+disc('personal-4', 12, 4);
 
 // --- named areas (first match wins, so specific places come first)
 const area = (id: string, x: number, y: number, w: number, h: number) =>
@@ -223,9 +307,9 @@ const area = (id: string, x: number, y: number, w: number, h: number) =>
       properties: [{ name: 'contentId', type: 'string', value: id }],
     },
   });
-area('norrgarden', 12, 6, 17, 10);
-area('mellangarden', 10, 16, 19, 14);
-area('sodergarden', 12, 30, 17, 10);
+area('norrhagen', 12, 6, 17, 10);
+area('mitthagen', 10, 16, 19, 14);
+area('soderhagen', 12, 30, 17, 10);
 area('bygatan', 29, 0, 4, H);
 area('kalkbacken', 49, 0, 15, 13);
 area('akrarna', 34, 6, 25, 17);
@@ -248,13 +332,17 @@ const map: TiledMap = {
   tilewidth: T,
   tileheight: T,
   infinite: false,
-  nextlayerid: 5,
+  nextlayerid: 9,
   nextobjectid: 0,
   layers: [
     { id: 1, name: 'ground', type: 'tilelayer', width: W, height: H, x: 0, y: 0, opacity: 1, visible: true, data: ground.map((t) => t + 1) },
     { id: 2, name: 'props', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: layerObjects('props') },
     { id: 3, name: 'areas', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 0.4, visible: true, objects: layerObjects('areas') },
     { id: 4, name: 'markers', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: layerObjects('markers') },
+    { id: 5, name: 'npcs', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: layerObjects('npcs') },
+    { id: 6, name: 'discoveries', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: layerObjects('discoveries') },
+    { id: 7, name: 'things', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: layerObjects('things') },
+    { id: 8, name: 'doors', type: 'objectgroup', draworder: 'topdown', x: 0, y: 0, opacity: 1, visible: true, objects: layerObjects('doors') },
   ],
   tilesets: [
     {

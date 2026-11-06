@@ -73,6 +73,7 @@ export interface TiledMap {
   tilewidth: number;
   tileheight: number;
   infinite: boolean;
+  properties?: TiledProperty[];
   nextlayerid: number;
   nextobjectid: number;
   layers: (TiledTileLayer | TiledObjectLayer)[];
